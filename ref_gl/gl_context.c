@@ -95,11 +95,11 @@ void Mod_BrushUnloadTextures( model_t *mod )
 	{
 		texture_t *tx = mod->textures[i];
 		if( !tx || tx->gl_texturenum == tr.defaultTexture )
-			continue;       // free slot
+			continue; // free slot
 
 		GL_FreeTexture( tx->gl_texturenum );    // main texture
 		GL_FreeTexture( tx->fb_texturenum );    // luma texture
-        }
+	}
 }
 
 void Mod_UnloadTextures( model_t *mod )
@@ -309,10 +309,16 @@ void R_ProcessEntData( qboolean allocate )
 		gEngfuncs.drawFuncs->R_ProcessEntData( allocate );
 }
 
+static const char *R_GetConfigName( void )
+{
+	return "opengl";
+}
+
 ref_interface_t gReffuncs =
 {
 	R_Init,
 	R_Shutdown,
+	R_GetConfigName,
 
 	GL_SetupAttributes,
 	GL_InitExtensions,
@@ -335,7 +341,6 @@ ref_interface_t gReffuncs =
 	R_ProcessEntData,
 
 	R_ShowTextures,
-	R_ShowTree,
 
 	R_GetTextureOriginalBuffer,
 	GL_LoadTextureFromBuffer,

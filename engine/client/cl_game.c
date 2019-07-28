@@ -1103,14 +1103,16 @@ void CL_FreeEntity( cl_entity_t *pEdict )
 
 void CL_ClearWorld( void )
 {
-	cl_entity_t	*world;
+	cl_entity_t	*worldmodel;
 
-	world = clgame.entities;
-	world->curstate.modelindex = 1;	// world model
-	world->curstate.solid = SOLID_BSP;
-	world->curstate.movetype = MOVETYPE_PUSH;
-	world->model = cl.worldmodel;
-	world->index = 0;
+	worldmodel = clgame.entities;
+	worldmodel->curstate.modelindex = 1;	// world model
+	worldmodel->curstate.solid = SOLID_BSP;
+	worldmodel->curstate.movetype = MOVETYPE_PUSH;
+	worldmodel->model = cl.worldmodel;
+	worldmodel->index = 0;
+
+	world.max_recursion = 0;
 
 	clgame.ds.cullMode = TRI_FRONT;
 	clgame.numStatics = 0;
@@ -1541,7 +1543,7 @@ static client_sprite_t *pfnSPR_GetList( char *psz, int *piCount )
 	{
 		Con_Printf( S_ERROR "SPR_GetList: overflow cache!\n" );
 		return NULL;
-          }
+	}
 
 	if( !clgame.itemspath[0] )	// typically it's sprites\*.txt
 		COM_ExtractFilePath( psz, clgame.itemspath );
@@ -1550,7 +1552,7 @@ static client_sprite_t *pfnSPR_GetList( char *psz, int *piCount )
 	if( !afile ) return NULL;
 
 	pfile = (char *)afile;
-	pfile = COM_ParseFile( pfile, token );          
+	pfile = COM_ParseFile( pfile, token );
 	numSprites = Q_atoi( token );
 
 	Q_strncpy( pEntry->szListName, psz, sizeof( pEntry->szListName ));
@@ -3456,7 +3458,7 @@ void NetAPI_CancelRequest( int context )
 				SetBits( nr->resp.error, NET_ERROR_TIMEOUT );
 				nr->resp.ping = host.realtime - nr->timesend;
 				nr->pfnFunc( &nr->resp );
-                              }
+			}
 
 			if( clgame.net_requests[i].resp.type == NETAPI_REQUEST_SERVERLIST && &clgame.net_requests[i] == clgame.master_request )
 			{
@@ -3903,6 +3905,10 @@ static cl_enginefunc_t gEngfuncs =
 	pfnGetAppID,
 	Cmd_AliasGetList,
 	pfnVguiWrap2_GetMouseDelta,
+
+	// HACKHACK: added it here so it wouldn't cause overflow or segfault
+	// TODO: itself client command filtering is not implemented yet
+	pfnClientCmd
 };
 
 void CL_UnloadProgs( void )
@@ -4006,7 +4012,7 @@ qboolean CL_LoadProgs( const char *name )
 		// functions are cleared before all the extensions are evaluated
 		if(( *func->func = (void *)COM_GetProcAddress( clgame.hInstance, func->name )) == NULL )
 		{
-          		Con_Reportf( "CL_LoadProgs: failed to get address of %s proc\n", func->name );
+			Con_Reportf( "CL_LoadProgs: failed to get address of %s proc\n", func->name );
 
 			if( critical_exports )
 			{

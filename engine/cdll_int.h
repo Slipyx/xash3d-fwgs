@@ -172,7 +172,7 @@ typedef struct cl_enginefuncs_s
 	int	(*GetMaxClients)( void );
 	void	(*Cvar_SetValue)( const char *cvar, float value );
 
-	int       (*Cmd_Argc)( void );	
+	int   (*Cmd_Argc)( void );
 	const char	*(*Cmd_Argv)( int arg );
 	void	(*Con_Printf)( const char *fmt, ... );
 	void	(*Con_DPrintf)( const char *fmt, ... );
@@ -303,6 +303,9 @@ typedef struct cl_enginefuncs_s
 	int		(*pfnGetAppID)( void );
 	cmdalias_t	*(*pfnGetAliases)( void );
 	void		(*pfnVguiWrap2_GetMouseDelta)( int *x, int *y );
+
+	// added in 2019 update, not documented yet
+	int		(*pfnFilteredClientCmd)( const char *cmd );
 } cl_enginefunc_t;
 
 #define CLDLL_INTERFACE_VERSION	7
